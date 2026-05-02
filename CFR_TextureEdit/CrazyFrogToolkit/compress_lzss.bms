@@ -1,0 +1,3 @@
+comtype lzss0
+get SIZE asize
+clog "output.lzss" 0 SIZE SIZE

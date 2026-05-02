@@ -1,0 +1,6 @@
+comtype lzss0
+get ZSIZE long
+get SIZE long
+savepos OFFSET
+get NAME basename
+clog NAME OFFSET ZSIZE SIZE
