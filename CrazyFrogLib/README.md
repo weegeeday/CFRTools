@@ -1,33 +1,48 @@
 # CrazyFrogLib
 
-A Python library for reverse engineering and modding *Crazy Frog Racer* (PC) game data.
+Python library for modding **Crazy Frog Racer** (PC).
 
 ## Features
-- **PCArchive**: Decompress and re-inject files into LZSS-compressed `.PC` archives.
-- **PS2Texture**: Handle PS2-style swizzled palettes and 4-bit/8-bit pixel formats.
-- **CFRLevel**: Manage level-specific texture mapping (`tin` + `gfx`).
 
-## Usage Example
+- **Archive**: Decompress/reimport LZSS-compressed `.PC` archives via QuickBMS
+- **Texture**: Extract and inject PS2 TIM2 paletted textures (4-bit/8-bit, BGRA swizzle)
+- **Mesh**: Parse DLWM 3D geometry (vertices, UVs, faces, materials)
+- **Level**: High-level API combining all of the above
 
-### Mass Replace All Textures in a Level
+## Quick Start
+
 ```python
 from CrazyFrogLib import CFRLevel
 
-# Paths
-DATA_DIR = r"c:\Users\simon\Downloads\CrazyFrog\GAME_TEST\data"
-BMS_EXE = r"c:\Users\simon\Downloads\CrazyFrog\data\L1\quickbms\quickbms.exe"
-BMS_SCRIPT = r"c:\Users\simon\Downloads\CrazyFrog\data\L1\extract_lzss.bms"
-TEMP_DIR = r"c:\Users\simon\Downloads\CrazyFrog\GAME_TEST_P\temp_lib"
+level = CFRLevel(
+    data_dir="data",
+    level_name="L1",
+    bms_exe="quickbms/quickbms.exe",
+    bms_script="extract_lzss.bms"
+)
 
-# Initialize level
-level = CFRLevel(DATA_DIR, "L1", BMS_EXE, BMS_SCRIPT)
+# Export textured OBJ (mesh + textures in one call)
+level.export_textured_obj("output/L1_export")
 
-# Load data and metadata
-level.load(TEMP_DIR)
+# Or work with textures independently
+level.load("temp")
+level.export_all("output/textures")
 
-# Global replacement
-level.replace_all_with_image("newImage.jpg")
-
-# Save back to .pc
+# Replace all textures
+level.replace_all_with_image("my_image.jpg")
 level.save()
 ```
+
+## Mesh Format (DLWM)
+
+| Field | Format | Notes |
+|-------|--------|-------|
+| Vertex | 16 bytes | `int16 X,Y,Z,W, U,V, A,B` |
+| Face | 20 bytes | `u16 mat, pad, i1,f1, i2,f2, i3,f3, tA,tB` |
+| UV range | 0–4095 | Fixed-point, divide by 4096 |
+
+## Requirements
+
+- Python 3.8+
+- Pillow (`pip install Pillow`)
+- QuickBMS (included in toolkit)

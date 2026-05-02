@@ -1,37 +1,36 @@
+"""
+CrazyFrog Toolkit - Example Script
+Export a textured 3D model from any Crazy Frog Racer level.
+
+Requirements:
+  - Python 3.8+, Pillow (pip install Pillow)
+  - QuickBMS (download from https://aluigi.altervista.org/quickbms.htm)
+  - extract_lzss.bms script (included)
+"""
 import os
-from CrazyFrogLib import CFRLevel
+import sys
 
-# Configuration (Relative to this script)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-BMS_EXE = os.path.join(BASE_DIR, "bin", "quickbms.exe")
-BMS_SCRIPT = os.path.join(BASE_DIR, "bin", "extract_lzss.bms")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from CrazyFrogLib import CFRLevel, DLWMMesh
 
-# Example usage (Point this to your game's data folder)
-GAME_DATA_ROOT = r"C:\Path\To\CrazyFrogRacer\data"
-TEMP_DIR = os.path.join(BASE_DIR, "temp_mod")
+# ── Configuration (edit these paths) ──────────────────────
+GAME_DATA   = r"C:\path\to\CrazyFrogRacer\data"
+BMS_EXE     = r"C:\path\to\quickbms\quickbms.exe"
+BMS_SCRIPT  = os.path.join(os.path.dirname(__file__), "extract_lzss.bms")
+LEVEL       = "L1"     # L1 through L16
+OUTPUT      = "output"
 
-def main():
-    print("--- CrazyFrog Toolkit Example ---")
-    
-    if not os.path.exists(GAME_DATA_ROOT):
-        print(f"ERROR: Please update GAME_DATA_ROOT in this script to point to your game data!")
-        return
+# ── Export textured OBJ ───────────────────────────────────
+print(f"Exporting {LEVEL} as textured OBJ...")
+level = CFRLevel(GAME_DATA, LEVEL, BMS_EXE, BMS_SCRIPT)
+obj_path = level.export_textured_obj(
+    output_dir=os.path.join(OUTPUT, f"{LEVEL}_export")
+)
+print(f"Done! Open in Blender: {obj_path}")
+print(f"  Vertices: {level.mesh.vert_count}")
+print(f"  Faces:    {level.mesh.face_count}")
+print(f"  Textures: {len(level.textures)}")
 
-    # Initialize level L1
-    lvl = CFRLevel(GAME_DATA_ROOT, "L1", BMS_EXE, BMS_SCRIPT)
-    
-    print(f"Loading {lvl.level_name}...")
-    try:
-        count = lvl.load(TEMP_DIR)
-        print(f"Found {count} textures mapped.")
-        
-        # Example replacement (if you have an image)
-        # lvl.replace_all_with_image("my_new_texture.png")
-        # lvl.save()
-        
-        print("\nToolkit is ready for modding!")
-    except Exception as e:
-        print(f"Failed to load level: {e}")
-
-if __name__ == "__main__":
-    main()
+# ── Replace all textures (optional) ──────────────────────
+# level.replace_all_with_image("my_image.jpg")
+# level.save()
