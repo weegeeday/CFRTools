@@ -120,7 +120,7 @@ class HelpDialog(QDialog):
         self.setFixedWidth(400)
         
         # Adjustable variables
-        self.github_url = "https://github.com/Weegeeday/CrazyFrogToolkit"
+        self.github_url = "https://github.com/weegeeday/CFRTools"
         self.version = "1.1.0"
         self.tool_name = "Crazy Frog Texture Tool (CFTX)"
         
